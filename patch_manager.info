@@ -1,11 +1,8 @@
-name = Patch manager
+name = Patch Manager
 description = Provides developer tools for patch management of core and contributed modules.
 core = 7.x
-version = 7.x-1.x-dev
-dependencies[] = text
-dependencies[] = file
-dependencies[] = views
-dependencies[] = views_bulk_operations
+
+dependencies[] = moopapi
 package = Development
 files[] = patch_manager.module
 
