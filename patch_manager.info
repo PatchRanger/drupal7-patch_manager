@@ -3,7 +3,10 @@ description = Provides developer tools for patch management of core and contribu
 core = 7.x
 
 dependencies[] = moopapi
+dependencies[] = entity
+dependencies[] = entityreference
+dependencies[] = machine_name
+dependencies[] = features
 package = Development
 files[] = patch_manager.module
-
-
+files[] = tests/patch_manager.test

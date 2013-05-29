@@ -1,0 +1,41 @@
+<?php
+
+/**
+ * Tests for Patch Manager module.
+ */
+class PatchManagerWebTestCase extends DrupalWebTestCase {
+  public static function getInfo() {
+    return array(
+      'name' => 'Patch Manager tests',
+      'description' => 'Tests for Patch Manager interface.',
+      'group' => 'Patch Manager',
+    );
+  }
+
+  public function setUp() {
+    parent::setUp(array('patch_manager'));
+  }
+
+  public function testEntityMonkeyPatch() {
+    $app_machine = $this->randomName();
+    $method_machine = $this->randomName();
+    // Define a function, that is intended to be overridden.
+    $function_name = "{$app_machine}_{$method_machine}";
+    Patchwork\replaceLater($function_name, function () {
+      return FALSE;
+    });
+    // Create an entity of Method entity type.
+    $method = entity_create('method', array(
+      'machine_name' => $method_machine,
+      'code' => 'return TRUE',
+    ));
+    // Create an entity of Application entity type, having Method entity incorporated.
+    $application = entity_create('application', array(
+      'title' => ($app_title = $this->randomString()),
+      'machine_name' => $app_machine,
+      'methods' => array($method),
+    ));
+    // Make sure that changed code is evaluated.
+    $this->assertTrue(call_user_func($function_name), 'Evaluated overridden code');
+  }
+}
