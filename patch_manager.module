@@ -5,6 +5,52 @@
  */
 
 /**
+ * Implementation of hook_entity_info().
+ */
+function patch_manager_entity_info() {
+  return array(
+    'patch_manager_application' => array(
+      'label' => t('Application'),
+      'controller class' => 'ApplicationEntityController',
+      'base table' => 'patch_manager_application',
+      'fieldable' => TRUE,
+      'entity keys' => array(
+        'id' => 'id',
+        'name' => 'name',
+        'label' => 'label',
+      ),
+      'module' => 'patch_manager',
+      'static cache' => TRUE,
+      'bundles' => array(),
+      'configuration' => TRUE,
+      'exportable' => TRUE,
+      'export' => array(
+        'default hook' => 'default_application_configuration',
+      ),
+      'access callback' => 'patch_manager_application_access',
+      'features controller class' => 'PatchManagerFeaturesController',
+    ),
+  );
+}
+
+// @todo Implement real entity controller.
+class ApplicationEntityController extends EntityAPIControllerExportable {}
+
+/**
+ * Implements hook_default_application_configuration().
+ */
+function patch_manager_default_application_configuration() {
+  // @todo Create default app configuration.
+  $app_configs = array();
+  return $app_configs;
+}
+
+function patch_manager_application_access() {
+  // @todo Implement better access handling.
+  return TRUE;
+}
+
+/**
  * Return values for the patch function
  *
  * patch's exit status is 0 if all hunks are applied successfully,
