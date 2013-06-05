@@ -56,7 +56,6 @@ function patch_manager_entity_info() {
     'base table' => 'patch_manager_metaobject_type',
     'fieldable' => TRUE,
     'bundle of' => 'patch_manager_metaobject',
-    'exportable' => TRUE,
     'entity keys' => array(
       'id' => 'id',
       'name' => 'type',
@@ -65,7 +64,6 @@ function patch_manager_entity_info() {
     //'label callback' => 'entity_class_label',
     //'uri callback' => 'entity_class_uri',
     'creation callback' => 'patch_manager_metaobject_type_create',
-    'access callback' => 'patch_manager_metaobject_type_access',
     'module' => 'patch_manager',
     // Enable the entity API's admin UI.
     'admin ui' => array(
@@ -80,6 +78,14 @@ function patch_manager_entity_info() {
         'custom settings' => FALSE,
       ),
     ),
+    'static cache' => TRUE,
+    'configuration' => TRUE,
+    'exportable' => TRUE,
+    'export' => array(
+      'default hook' => 'default_metaobject_type_configuration',
+    ),
+    'access callback' => 'patch_manager_metaobject_type_access',
+    'features controller class' => 'MetaobjectTypeFeaturesController',
     //'metadata controller class' => 'EntityformTypeMetadataController',
   );
   return $entities;
@@ -92,7 +98,7 @@ function patch_manager_entity_info() {
  * issue as loading the entityform types requires the entity info as well.
  */
 function patch_manager_entity_info_alter(&$entity_info) {
-  foreach (patch_manager_get_types() as $type => $bundle) {
+  foreach (patch_manager_get_metaobject_types() as $type => $bundle) {
     $entity_info['patch_manager_metaobject']['bundles'][$type] = array(
       'label' => $bundle->label,
       'admin' => array(
@@ -103,36 +109,6 @@ function patch_manager_entity_info_alter(&$entity_info) {
       ),
     );
   }
-}
-
-function patch_manager_get_types($type_name = NULL, $reset = FALSE) {
-  // entity_load will get the Entity controller for our entityform entity and call the load
-  // function of that object - we are loading entities by name here.
-  $types = entity_load_multiple_by_name('patch_manager_metaobject_type', isset($type_name) ? array($type_name) : FALSE);
-  return isset($type_name) ? reset($types) : $types;
-  /* @todo Remove it.
-  $metaobject_types = &drupal_static(__FUNCTION__);
-  if (!isset($metaobject_types)) {
-    $metaobject_types = array();
-  }
-  elseif ($reset) {
-    unset($metaobject_types[$type_name]);
-  }
-  if (empty($metaobject_types) || (isset($type_name) && empty($metaobject_types[$type_name]))) {
-    if (!isset($type_name)) {
-      $metaobject_types = entity_load_multiple_by_name('patch_manager_metaobject_type', FALSE);
-    }
-    else {
-      $types = entity_load_multiple_by_name('patch_manager_metaobject_type', array($type_name));
-      if (empty($types)) {
-        return FALSE;
-      }
-      $metaobject_types[$type_name] = array_shift($types);
-    }
-  }
-  return isset($type_name) ? $metaobject_types[$type_name] : $metaobject_types;
-   *
-   */
 }
 
 // @todo Implement real entity controllers.
@@ -253,9 +229,35 @@ function patch_manager_get_metaobjects($metaobject_name = NULL) {
   return array();
 }
 
-function patch_manager_get_metaobject_types($metaobject_type_name = NULL) {
-  // @todo Implement existence check.
-  return array();
+/**
+ * Get metaobject types.
+ *
+ * @param $metaobject_type_name
+ *   The machine-readable name of a entityform type to load. If NULL - loads all.
+ * @param boolean $reset
+ *   Whether to reset or not cached metaobject types.
+ * @return
+ *   A metaobject type array, single metaobject type or FALSE if metaobject type
+ *   called $metaobject_type_name does not exist.
+ */
+function patch_manager_get_metaobject_types($metaobject_type_name = NULL, $reset = FALSE) {
+  // entity_load will get the Entity controller for our entityform entity and call the load
+  // function of that object - we are loading entities by name here.
+  $metaobject_types = &drupal_static(__FUNCTION__, array(), $reset);
+  if (empty($metaobject_types) || (isset($metaobject_type_name) && empty($metaobject_types[$metaobject_type_name]))) {
+    if (!isset($metaobject_type_name)) {
+      $metaobject_types = entity_load_multiple_by_name('patch_manager_metaobject_type', FALSE);
+    }
+    else {
+      $types = entity_load_multiple_by_name('patch_manager_metaobject_type', array($metaobject_type_name));
+      if (empty($types)) {
+        return FALSE;
+      }
+      // @todo Describe why it is necessary.
+      $metaobject_types[$metaobject_type_name] = array_shift($types);
+    }
+  }
+  return isset($metaobject_type_name) ? $metaobject_types[$metaobject_type_name] : $metaobject_types;
 }
 
 /**
@@ -288,5 +290,5 @@ function patch_manager_metaobject_type_form_submit(&$form, &$form_state) {
  */
 function patch_manager_metaobject_type_load($type, $reset = FALSE) {
   $type = str_replace('-', '_', $type);
-  return patch_manager_get_types($type, $reset);
+  return patch_manager_get_metaobject_types($type, $reset);
 }
