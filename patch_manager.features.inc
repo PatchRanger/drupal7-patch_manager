@@ -10,15 +10,15 @@
 /**
  * Controller handling the Features integration.
  */
-class PatchManagerFeaturesController extends EntityDefaultFeaturesController {
+class MetaobjectFeaturesController extends EntityDefaultFeaturesController {
 
   /**
    * Defines the result for hook_features_api().
    */
   public function api() {
     $info = parent::api();
-    $info['patch_manager_application']['default_file'] = FEATURES_DEFAULTS_CUSTOM;
-    $info['patch_manager_application']['default_filename'] = 'application';
+    $info['patch_manager_metaobject']['default_file'] = FEATURES_DEFAULTS_CUSTOM;
+    $info['patch_manager_metaobject']['default_filename'] = 'metaobject';
     return $info;
   }
 

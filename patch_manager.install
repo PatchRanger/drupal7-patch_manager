@@ -8,7 +8,7 @@
  * Implements hook_schema().
  */
 function patch_manager_schema() {
-  $schema['patch_manager_application'] = array(
+  $schema['patch_manager_metaobject'] = array(
     'fields' => array(
       'id' => array(
         'type' => 'serial',
@@ -27,6 +27,13 @@ function patch_manager_schema() {
         'not null' => TRUE,
         'description' => 'The label of the configuration.',
         'default' => 'unlabeled',
+      ),
+      'type' => array(
+        'description' => 'The type of this metaobject.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
       ),
       'active' => array(
         'description' => 'Boolean indicating whether the configuration is active. Usage depends on how the using module makes use of it.',
@@ -65,6 +72,74 @@ function patch_manager_schema() {
       ),
     ),
     'primary key' => array('id'),
+    'indexes' => array(
+      'type' => array('type'),
+    ),
+    'unique keys' => array(
+      'name' => array('name'),
+    ),
+  );
+  $schema['patch_manager_metaobject_type'] = array(
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'The internal identifier for any configuration.',
+      ),
+      'label' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+        'description' => 'The label of the configuration.',
+        'default' => 'unlabeled',
+      ),
+      'type' => array(
+        'description' => 'The type of this metaobject.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'active' => array(
+        'description' => 'Boolean indicating whether the configuration is active. Usage depends on how the using module makes use of it.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 1,
+      ),
+      'weight' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+        'size' => 'tiny',
+        'description' => 'Weight of the configuration. Usage depends on how the using module makes use of it.',
+      ),
+      'status' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        // Set the default to ENTITY_CUSTOM without using the constant as it is
+        // not safe to use it at this point.
+        'default' => 0x01,
+        'size' => 'tiny',
+        'description' => 'The exportable status of the entity.',
+      ),
+      'module' => array(
+        'description' => 'The name of the providing module if the entity has been defined in code.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => FALSE,
+      ),
+      'data' => array(
+        'type' => 'blob',
+        'size' => 'big',
+        'not null' => FALSE,
+        'serialize' => TRUE,
+        'description' => 'Everything else, serialized.',
+      ),
+    ),
+    'primary key' => array('id'),
+    'indexes' => array(
+      'type' => array('type'),
+    ),
     'unique keys' => array(
       'name' => array('name'),
     ),
