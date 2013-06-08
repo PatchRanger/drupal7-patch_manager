@@ -112,7 +112,7 @@ function patch_manager_entity_info_alter(&$entity_info) {
 // @todo Implement real entity controllers.
 class MetaobjectController extends EntityAPIControllerExportable {}
 class Metaobject extends Entity {}
-class MetaobjectUIController extends EntityDefaultUIController {}
+class MetaobjectUIController extends EntityBundlesUIController {}
 class MetaobjectTypeController extends EntityAPIControllerExportable {}
 class MetaobjectType extends Entity {}
 class MetaobjectTypeUIController extends EntityDefaultUIController {
@@ -183,6 +183,8 @@ function patch_manager_metaobject_form($form, &$form_state, $metaobject, $op = '
     ),
     '#description' => t('A unique machine-readable name for this metaobject. It must only contain lowercase letters, numbers, and underscores.'),
   );
+  // Add other fields.
+  field_attach_form('patch_manager_metaobject', $metaobject, $form, $form_state);
   $form['actions'] = array('#type' => 'actions');
   $form['actions']['submit'] = array(
     '#type' => 'submit',
