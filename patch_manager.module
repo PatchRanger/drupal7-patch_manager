@@ -60,6 +60,10 @@ function patch_manager_entity_info() {
       'name' => 'type',
       'label' => 'label',
     ),
+    // Bundle keys tell the FieldAPI how to extract information from the bundle objects.
+    'bundle keys' => array(
+      'bundle' => 'type',
+    ),
     //'label callback' => 'entity_class_label',
     //'uri callback' => 'entity_class_uri',
     //'creation callback' => 'patch_manager_metaobject_type_create',
@@ -92,7 +96,7 @@ function patch_manager_entity_info() {
 /**
  * Implements hook_entity_info_alter().
  *
- * We are adding the info about the entityform types via a hook to avoid a recursion
+ * We are adding the info about the metaobject types via a hook to avoid a recursion
  * issue as loading the entityform types requires the entity info as well.
  */
 function patch_manager_entity_info_alter(&$entity_info) {
@@ -103,10 +107,23 @@ function patch_manager_entity_info_alter(&$entity_info) {
         'path' => 'admin/structure/metaobject_types/manage/%entity_object',
         'real path' => 'admin/structure/metaobject_types/manage/' . $type,
         'bundle argument' => 4,
-        //'access arguments' => array('administer metaobject types'),
+        'access arguments' => array('administer metaobjects'),
       ),
     );
   }
+}
+
+/**
+ * Implements hook_permission().
+ */
+function patch_manager_permission() {
+  $permissions = array(
+    'administer metaobjects' => array(
+      'title' => t('Administer metaobjects'),
+      'description' => t('Create and delete fields for metaobject types.'),
+    ),
+  );
+  return $permissions;
 }
 
 // @todo Implement real entity controllers.
@@ -171,6 +188,7 @@ function patch_manager_metaobject_form($form, &$form_state, $metaobject, $op = '
     '#type' => 'textfield',
     '#default_value' => isset($metaobject->label) ? $metaobject->label : '',
   );
+  /* @todo Remove it.
   // Machine-readable application id.
   $form['name'] = array(
     '#type' => 'machine_name',
@@ -183,6 +201,8 @@ function patch_manager_metaobject_form($form, &$form_state, $metaobject, $op = '
     ),
     '#description' => t('A unique machine-readable name for this metaobject. It must only contain lowercase letters, numbers, and underscores.'),
   );
+   *
+   */
   // Add other fields.
   field_attach_form('patch_manager_metaobject', $metaobject, $form, $form_state);
   $form['actions'] = array('#type' => 'actions');
@@ -289,12 +309,9 @@ function patch_manager_metaobject_type_form_submit(&$form, &$form_state) {
  */
 function patch_manager_admin_menu_map() {
   $map = array();
-  /* @todo Implement permission.
-  if (!user_access('administer content types')) {
+  if (!user_access('administer metaobjects')) {
     return;
   }
-   *
-   */
   // As Node does for Content Types.
   // @see node_admin_menu_map()
   $map['admin/structure/metaobject_types/manage/%entity_object'] = array(
@@ -303,7 +320,6 @@ function patch_manager_admin_menu_map() {
       array('%entity_object' => array_keys(patch_manager_get_metaobject_types())),
     ),
   );
-  /* @todo Implement Field UI menus.
   // As Field UI does.
   // @see field_ui_admin_menu_map()
   // Invoke general function to gather all alterations.
@@ -317,19 +333,15 @@ function patch_manager_admin_menu_map() {
             $fields[] = $field['field_name'];
           }
           $arguments = array(
-            '%node_type' => array($bundle_name),
+            '%entity_object' => array($bundle_name),
             '%field_ui_menu' => $fields,
           );
+          $path = $bundle_info['admin']['path'];
+          $map["$path/fields/%field_ui_menu"]['parent'] = "$path/fields";
+          $map["$path/fields/%field_ui_menu"]['arguments'][] = $arguments;
         }
-      }
-      if (!empty($arguments)) {
-        $path = $bundle_info['admin']['path'];
-        $map["$path/fields/%field_ui_menu"]['parent'] = "$path/fields";
-        $map["$path/fields/%field_ui_menu"]['arguments'][] = $arguments;
       }
     }
   }
-   *
-   */
   return $map;
 }
