@@ -9,5 +9,4 @@ dependencies[] = machine_name
 dependencies[] = patch_manager_features
 package = Development
 files[] = patch_manager.module
-files[] = patch_manager.features.inc
 files[] = tests/patch_manager.test

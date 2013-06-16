@@ -13,27 +13,27 @@ class PatchManagerWebTestCase extends DrupalWebTestCase {
   }
 
   public function setUp() {
-    parent::setUp(array('patch_manager'));
+    parent::setUp(array('patch_manager', 'patch_manager_features'));
   }
 
   public function testEntityMonkeyPatch() {
-    $app_machine = $this->randomName();
-    $method_machine = $this->randomName();
+    $method_name = $this->randomName();
+    $module_name = $this->randomName();
     // Define a function, that is intended to be overridden.
-    $function_name = "{$app_machine}_{$method_machine}";
-    Patchwork\replaceLater($function_name, function () {
-      return FALSE;
-    });
+    $function_name = "{$module_name}_{$method_name}";
     // Create an entity of Method entity type.
-    $method = entity_create('method', array(
-      'machine_name' => $method_machine,
-      'code' => 'return TRUE',
+    $method = entity_create('patch_manager_metaobject', array(
+      'label' => $method_name,
+      'name' => $method_name,
+      'type' => 'method',
+      'field_method_code' => 'return FALSE;',
     ));
-    // Create an entity of Application entity type, having Method entity incorporated.
-    $application = entity_create('application', array(
-      'title' => ($app_title = $this->randomString()),
-      'machine_name' => $app_machine,
-      'methods' => array($method),
+    // Create an entity of Module entity type, having Method entity incorporated.
+    $module = entity_create('patch_manager_metaobject', array(
+      'label' => ($module_label = $this->randomString()),
+      'name' => $module_name,
+      'type' => 'module',
+      'field_module_methods' => array($method),
     ));
     // Make sure that changed code is evaluated.
     $this->assertTrue(call_user_func($function_name), 'Evaluated overridden code');

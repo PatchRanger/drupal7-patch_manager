@@ -140,9 +140,12 @@ function patch_manager_schema() {
     'indexes' => array(
       'type' => array('type'),
     ),
+    /* @todo Remove it.
     'unique keys' => array(
       'name' => array('name'),
     ),
+     *
+     */
   );
   return $schema;
 }

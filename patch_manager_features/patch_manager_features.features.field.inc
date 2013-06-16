@@ -71,120 +71,6 @@ function patch_manager_features_field_default_fields() {
     ),
   );
 
-  // Exported field: 'patch_manager_metaobject-method-field_method_machine_name'.
-  $fields['patch_manager_metaobject-method-field_method_machine_name'] = array(
-    'field_config' => array(
-      'active' => '1',
-      'cardinality' => '1',
-      'deleted' => '0',
-      'entity_types' => array(),
-      'field_name' => 'field_method_machine_name',
-      'foreign keys' => array(),
-      'indexes' => array(
-        'value' => array(
-          0 => 'value',
-        ),
-      ),
-      'locked' => '0',
-      'module' => 'machine_name',
-      'settings' => array(
-        'max_length' => 128,
-        'replace' => '_',
-        'replace_pattern' => '[^a-z0-9_]+',
-      ),
-      'translatable' => '0',
-      'type' => 'machine_name',
-    ),
-    'field_instance' => array(
-      'bundle' => 'method',
-      'default_value' => NULL,
-      'deleted' => '0',
-      'description' => '',
-      'display' => array(
-        'default' => array(
-          'label' => 'above',
-          'module' => 'machine_name',
-          'settings' => array(),
-          'type' => 'machine_name_default',
-          'weight' => 0,
-        ),
-      ),
-      'entity_type' => 'patch_manager_metaobject',
-      'field_name' => 'field_method_machine_name',
-      'label' => 'Method machine name',
-      'required' => 1,
-      'settings' => array(
-        'user_register_form' => FALSE,
-      ),
-      'widget' => array(
-        'active' => 0,
-        'module' => 'machine_name',
-        'settings' => array(
-          'size' => 128,
-        ),
-        'type' => 'machine_name_default',
-        'weight' => '1',
-      ),
-    ),
-  );
-
-  // Exported field: 'patch_manager_metaobject-module-field_module_machine_name'.
-  $fields['patch_manager_metaobject-module-field_module_machine_name'] = array(
-    'field_config' => array(
-      'active' => '1',
-      'cardinality' => '1',
-      'deleted' => '0',
-      'entity_types' => array(),
-      'field_name' => 'field_module_machine_name',
-      'foreign keys' => array(),
-      'indexes' => array(
-        'value' => array(
-          0 => 'value',
-        ),
-      ),
-      'locked' => '0',
-      'module' => 'machine_name',
-      'settings' => array(
-        'max_length' => 128,
-        'replace' => '_',
-        'replace_pattern' => '[^a-z0-9_]+',
-      ),
-      'translatable' => '0',
-      'type' => 'machine_name',
-    ),
-    'field_instance' => array(
-      'bundle' => 'module',
-      'default_value' => NULL,
-      'deleted' => '0',
-      'description' => '',
-      'display' => array(
-        'default' => array(
-          'label' => 'above',
-          'module' => 'machine_name',
-          'settings' => array(),
-          'type' => 'machine_name_default',
-          'weight' => 0,
-        ),
-      ),
-      'entity_type' => 'patch_manager_metaobject',
-      'field_name' => 'field_module_machine_name',
-      'label' => 'Module machine name',
-      'required' => 1,
-      'settings' => array(
-        'user_register_form' => FALSE,
-      ),
-      'widget' => array(
-        'active' => 0,
-        'module' => 'machine_name',
-        'settings' => array(
-          'size' => 128,
-        ),
-        'type' => 'machine_name_default',
-        'weight' => '1',
-      ),
-    ),
-  );
-
   // Exported field: 'patch_manager_metaobject-module-field_module_methods'.
   $fields['patch_manager_metaobject-module-field_module_methods'] = array(
     'field_config' => array(
@@ -217,7 +103,9 @@ function patch_manager_features_field_default_fields() {
             ),
           ),
           'sort' => array(
-            'type' => 'none',
+            'direction' => 'ASC',
+            'property' => 'name',
+            'type' => 'property',
           ),
           'target_bundles' => array(
             'method' => 'method',
@@ -241,7 +129,7 @@ function patch_manager_features_field_default_fields() {
             'link' => FALSE,
           ),
           'type' => 'entityreference_label',
-          'weight' => 1,
+          'weight' => 3,
         ),
       ),
       'entity_type' => 'patch_manager_metaobject',
@@ -253,9 +141,13 @@ function patch_manager_features_field_default_fields() {
       ),
       'widget' => array(
         'active' => 1,
-        'module' => 'options',
-        'settings' => array(),
-        'type' => 'options_select',
+        'module' => 'entityreference',
+        'settings' => array(
+          'match_operator' => 'CONTAINS',
+          'path' => '',
+          'size' => '60',
+        ),
+        'type' => 'entityreference_autocomplete',
         'weight' => '2',
       ),
     ),
@@ -264,8 +156,6 @@ function patch_manager_features_field_default_fields() {
   // Translatables
   // Included for use with string extractors like potx.
   t('Method code');
-  t('Method machine name');
-  t('Module machine name');
   t('Module methods');
 
   return $fields;

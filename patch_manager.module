@@ -41,11 +41,9 @@ function patch_manager_entity_info() {
     'static cache' => TRUE,
     'configuration' => TRUE,
     'exportable' => TRUE,
-    'export' => array(
-      'default hook' => 'default_metaobject_configuration',
-    ),
     'access callback' => 'patch_manager_metaobject_access',
-    'features controller class' => 'MetaobjectFeaturesController',
+    // @todo Remove it.
+    //'features controller class' => 'MetaobjectFeaturesController',
   );
   // The entity that holds information about the entity types.
   $entities['patch_manager_metaobject_type'] = array(
@@ -83,11 +81,9 @@ function patch_manager_entity_info() {
     'static cache' => TRUE,
     'configuration' => TRUE,
     'exportable' => TRUE,
-    'export' => array(
-      'default hook' => 'default_metaobject_type_configuration',
-    ),
     'access callback' => 'patch_manager_metaobject_type_access',
-    'features controller class' => 'MetaobjectTypeFeaturesController',
+    // @todo Remove it.
+    //'features controller class' => 'MetaobjectTypeFeaturesController',
     //'metadata controller class' => 'EntityformTypeMetadataController',
   );
   return $entities;
@@ -98,13 +94,13 @@ function patch_manager_entity_info() {
  *
  * We are adding the info about the metaobject types via a hook to avoid a recursion
  * issue as loading the entityform types requires the entity info as well.
- */
+ *\/ @todo Remove it: though it requires patch from http://drupal.org/node/1332004
 function patch_manager_entity_info_alter(&$entity_info) {
   foreach (patch_manager_get_metaobject_types() as $type => $bundle) {
     $entity_info['patch_manager_metaobject']['bundles'][$type] = array(
       'label' => $bundle->label,
       'admin' => array(
-        'path' => 'admin/structure/metaobject_types/manage/%entity_object',
+        'path' => 'admin/structure/metaobject_types/manage/%entity_type',
         'real path' => 'admin/structure/metaobject_types/manage/' . $type,
         'bundle argument' => 4,
         'access arguments' => array('administer metaobjects'),
@@ -112,6 +108,8 @@ function patch_manager_entity_info_alter(&$entity_info) {
     );
   }
 }
+ *
+ */
 
 /**
  * Implements hook_permission().
@@ -129,7 +127,28 @@ function patch_manager_permission() {
 // @todo Implement real entity controllers.
 class MetaobjectController extends EntityAPIControllerExportable {}
 class Metaobject extends Entity {}
-class MetaobjectUIController extends EntityBundlesUIController {}
+class MetaobjectUIController extends EntityBundlesUIController {
+  /**
+   * Overrides overviewTableHeaders().
+   */
+  protected function overviewTableHeaders($conditions, $rows, $additional_header = array()) {
+    $header = parent::overviewTableHeaders($conditions, $rows, $additional_header);
+    // Insert column as second for metaobject type.
+    $first = array_shift($header);
+    array_unshift($header, t('Metaobject type'));
+    array_unshift($header, $first);
+    return $header;
+  }
+
+  protected function overviewTableRow($conditions, $id, $entity, $additional_cols = array()) {
+    $row = parent::overviewTableRow($conditions, $id, $entity, $additional_cols);
+    // Insert column as second for metaobject type.
+    $first = array_shift($row);
+    array_unshift($row, $entity->bundle());
+    array_unshift($row, $first);
+    return $row;
+  }
+}
 class MetaobjectTypeController extends EntityAPIControllerExportable {}
 class MetaobjectType extends Entity {}
 class MetaobjectTypeUIController extends EntityDefaultUIController {
@@ -183,28 +202,25 @@ function patch_manager_metaobject_form($form, &$form_state, $metaobject, $op = '
     $metaobject->label .= ' (cloned)';
     $metaobject->name .= '_clone';
   }
+  // @todo Remove label for Method metaobject, leave for Module.
   $form['label'] = array(
     '#title' => t('Label'),
     '#type' => 'textfield',
     '#default_value' => isset($metaobject->label) ? $metaobject->label : '',
   );
-  /* @todo Remove it.
   // Machine-readable application id.
   $form['name'] = array(
     '#type' => 'machine_name',
     '#default_value' => isset($metaobject->name) ? $metaobject->name : '',
-    // @todo ?Do we need it?
-    //'#disabled' => $application->isLocked(),
     '#machine_name' => array(
       'exists' => 'patch_manager_get_metaobjects',
       'source' => array('label'),
     ),
     '#description' => t('A unique machine-readable name for this metaobject. It must only contain lowercase letters, numbers, and underscores.'),
   );
-   *
-   */
   // Add other fields.
   field_attach_form('patch_manager_metaobject', $metaobject, $form, $form_state);
+  // Add submit button.
   $form['actions'] = array('#type' => 'actions');
   $form['actions']['submit'] = array(
     '#type' => 'submit',
@@ -314,10 +330,10 @@ function patch_manager_admin_menu_map() {
   }
   // As Node does for Content Types.
   // @see node_admin_menu_map()
-  $map['admin/structure/metaobject_types/manage/%entity_object'] = array(
+  $map['admin/structure/metaobject_types/manage/%entity_type'] = array(
     'parent' => 'admin/structure/metaobject_types',
     'arguments' => array(
-      array('%entity_object' => array_keys(patch_manager_get_metaobject_types())),
+      array('%entity_type' => array_keys(patch_manager_get_metaobject_types())),
     ),
   );
   // As Field UI does.
@@ -333,7 +349,7 @@ function patch_manager_admin_menu_map() {
             $fields[] = $field['field_name'];
           }
           $arguments = array(
-            '%entity_object' => array($bundle_name),
+            '%entity_type' => array($bundle_name),
             '%field_ui_menu' => $fields,
           );
           $path = $bundle_info['admin']['path'];

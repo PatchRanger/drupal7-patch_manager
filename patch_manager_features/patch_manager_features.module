@@ -4,4 +4,4 @@
  * Code for the Patch Manager Features feature.
  */
 
-include_once 'patch_manager_features.metaobject.inc';
+include_once 'patch_manager_features.features.inc';
